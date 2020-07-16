@@ -12,12 +12,14 @@ import (
 
 const cmd = "bake"
 
+// Task represents a whole task.
 type Task struct {
 	Command      string
 	Args         []string
 	Dependencies []string
 }
 
+// Command represents a command to run.
 type Command struct {
 	name string
 	args []string
