@@ -1,0 +1,18 @@
+[default]
+dependencies = ["build"]
+
+[ls]
+command = "ls"
+
+[test]
+command = "echo"
+args = ["test", "-v"]
+
+[clean]
+command = "echo"
+args = ["clean"]
+
+[build]
+command = "echo"
+args = ["build"]
+dependencies = ["clean"]

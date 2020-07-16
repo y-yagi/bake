@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -27,20 +28,23 @@ type Command struct {
 
 var (
 	// Command line flags.
+	flags       *flag.FlagSet
 	showVersion bool
 	makeFile    string
 
 	version = "devel"
 )
 
-func init() {
-	flag.BoolVar(&showVersion, "v", false, "print version number")
-	flag.StringVar(&makeFile, "f", "bake.toml", "use file as a makefile")
-	flag.Usage = usage
+func setFlags() {
+	flags = flag.NewFlagSet(cmd, flag.ExitOnError)
+	flags.BoolVar(&showVersion, "v", false, "print version number")
+	flags.StringVar(&makeFile, "f", "bake.toml", "use file as a makefile")
+	flags.Usage = usage
 }
 
 func main() {
-	os.Exit(run())
+	setFlags()
+	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
 
 func usage() {
@@ -57,11 +61,11 @@ func msg(err error) int {
 	return 0
 }
 
-func run() int {
-	flag.Parse()
+func run(args []string, stdout, stderr io.Writer) (exitCode int) {
+	flags.Parse(args[1:])
 
 	if showVersion {
-		fmt.Fprintf(os.Stdout, "%s %s (runtime: %s)\n", cmd, version, runtime.Version())
+		fmt.Fprintf(stdout, "%s %s (runtime: %s)\n", cmd, version, runtime.Version())
 		return 0
 	}
 
@@ -86,7 +90,7 @@ func run() int {
 		return msg(err)
 	}
 
-	if err = executeCommands(commands); err != nil {
+	if err = executeCommands(commands, stdout); err != nil {
 		return msg(err)
 	}
 
@@ -137,7 +141,7 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 	return commands, nil
 }
 
-func executeCommands(commands []Command) error {
+func executeCommands(commands []Command, stdout io.Writer) error {
 	for _, command := range commands {
 		out, err := exec.Command(command.name, command.args...).CombinedOutput()
 		if err != nil {
@@ -145,7 +149,7 @@ func executeCommands(commands []Command) error {
 		}
 
 		if len(string(out)) > 0 {
-			fmt.Fprintf(os.Stdout, "%s", string(out))
+			fmt.Fprintf(stdout, "%s", string(out))
 		}
 	}
 
