@@ -1,0 +1,36 @@
+[default]
+dependencies = ["build"]
+
+[ls]
+command = "ls"
+
+[test]
+command = "echo"
+args = ["test", "-v"]
+
+[clean]
+command = "echo"
+args = ["clean"]
+
+[build]
+command = "echo"
+args = ["build"]
+dependencies = ["clean"]
+
+[success]
+command = "echo"
+args = ["success"]
+dependencies = ["fail"]
+
+[fail]
+command = "zzz"
+
+[not_defined]
+command = "echo"
+args = ["not_defined"]
+dependencies = ["not_defined_dependency"]
+
+[self]
+command = "echo"
+args = ["self"]
+dependencies = ["self"]
