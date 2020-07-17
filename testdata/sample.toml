@@ -16,3 +16,21 @@ args = ["clean"]
 command = "echo"
 args = ["build"]
 dependencies = ["clean"]
+
+[success]
+command = "echo"
+args = ["success"]
+dependencies = ["fail"]
+
+[fail]
+command = "zzz"
+
+[not_defined]
+command = "echo"
+args = ["not_defined"]
+dependencies = ["not_defined_dependency"]
+
+[self]
+command = "echo"
+args = ["self"]
+dependencies = ["self"]

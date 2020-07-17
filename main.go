@@ -53,9 +53,9 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func msg(err error) int {
+func msg(err error, stderr io.Writer) int {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %+v\n", cmd, err)
+		fmt.Fprintf(stderr, "%s: %+v\n", cmd, err)
 		return 1
 	}
 	return 0
@@ -71,7 +71,7 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 
 	tasks, err := parse(makeFile)
 	if err != nil {
-		return msg(err)
+		return msg(err, stderr)
 	}
 
 	target := "default"
@@ -82,16 +82,16 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	task, found := tasks[target]
 	if !found {
 		err := fmt.Errorf("'%s' is not defined", target)
-		return msg(err)
+		return msg(err, stderr)
 	}
 
 	commands, err := buildCommands(task, tasks)
 	if err != nil {
-		return msg(err)
+		return msg(err, stderr)
 	}
 
 	if err = executeCommands(commands, stdout); err != nil {
-		return msg(err)
+		return msg(err, stderr)
 	}
 
 	return 0
@@ -115,6 +115,7 @@ func parse(makeFile string) (map[string]Task, error) {
 
 func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 	dependencies := task.Dependencies
+	definedTasks := map[string]bool{}
 	commands := []Command{}
 
 	for len(dependencies) > 0 {
@@ -126,6 +127,12 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 			err := fmt.Errorf("'%s' is not defined", dependency)
 			return nil, err
 		}
+
+		if _, found = definedTasks[dependency]; found {
+			err := fmt.Errorf("circular dependency detected, '%s' already added", dependency)
+			return nil, err
+		}
+		definedTasks[dependency] = true
 
 		if len(t.Command) > 0 {
 			commands = append([]Command{Command{name: t.Command, args: t.Args}}, commands...)
