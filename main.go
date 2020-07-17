@@ -75,8 +75,8 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	}
 
 	target := "default"
-	if len(flag.Args()) > 0 {
-		target = flag.Args()[0]
+	if len(flags.Args()) > 0 {
+		target = flags.Args()[0]
 	}
 
 	task, found := tasks[target]
