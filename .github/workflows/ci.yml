@@ -39,3 +39,9 @@ jobs:
         staticcheck ./...
       env:
         GO111MODULE: on
+
+    - name: Run Test
+      run: |
+        go test -v ./...
+      env:
+        GO111MODULE: on
