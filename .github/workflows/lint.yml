@@ -1,14 +1,13 @@
-name: CI
+name: Lint
 on: [push]
 jobs:
 
   build:
-    name: Build
+    name: Lint
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         go: [1.14]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.platform }}
     steps:
 
     - name: Set up Go
@@ -25,6 +24,18 @@ jobs:
       env:
         GO111MODULE: on
 
+    - name: Run lint
+      run: |
+        export PATH=$PATH:$(go env GOPATH)/bin
+        go get -u golang.org/x/lint/golint
+        golint -set_exit_status
+      env:
+        GO111MODULE: on
+
     - name: Run staticcheck
       run: |
-        go test -v ./...
+        export PATH=$PATH:$(go env GOPATH)/bin
+        go get -u honnef.co/go/tools/cmd/staticcheck
+        staticcheck ./...
+      env:
+        GO111MODULE: on
