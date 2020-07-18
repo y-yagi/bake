@@ -3,7 +3,7 @@ on: [push]
 jobs:
 
   build:
-    name: Build
+    name: Test
     strategy:
       matrix:
         go: [1.14]
@@ -25,6 +25,6 @@ jobs:
       env:
         GO111MODULE: on
 
-    - name: Run staticcheck
+    - name: Run test
       run: |
         go test -v ./...
