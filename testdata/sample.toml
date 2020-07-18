@@ -34,3 +34,12 @@ dependencies = ["not_defined_dependency"]
 command = "echo"
 args = ["self"]
 dependencies = ["self"]
+
+[chrome]
+{{if eq .OS "windows"}}
+command = "echo"
+args = ["chrome"]
+{{else}}
+command = "echo"
+args = ["google-chrome"]
+{{end}}
