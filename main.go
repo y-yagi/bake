@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"text/template"
 
 	"github.com/BurntSushi/toml"
 )
@@ -24,6 +26,11 @@ type Task struct {
 type Command struct {
 	name string
 	args []string
+}
+
+// MakeFileVariable represents a variables of makefile.
+type MakeFileVariable struct {
+	OS string
 }
 
 var (
@@ -98,9 +105,19 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 }
 
 func parse(makeFile string) (map[string]Task, error) {
-	var p toml.Primitive
+	t, err := template.ParseFiles(makeFile)
+	if err != nil {
+		return nil, err
+	}
 
-	md, err := toml.DecodeFile(makeFile, &p)
+	parsedMakeFile := new(bytes.Buffer)
+	tv := MakeFileVariable{OS: runtime.GOOS}
+	if err = t.Execute(parsedMakeFile, tv); err != nil {
+		return nil, err
+	}
+
+	var p toml.Primitive
+	md, err := toml.Decode(parsedMakeFile.String(), &p)
 	if err != nil {
 		return nil, err
 	}
