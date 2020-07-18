@@ -55,9 +55,9 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n\n", cmd)
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] [TARGET (default \"default\")]\n\n", cmd)
 	fmt.Fprintln(os.Stderr, "OPTIONS:")
-	flag.PrintDefaults()
+	flags.PrintDefaults()
 }
 
 func msg(err error, stderr io.Writer) int {
