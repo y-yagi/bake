@@ -87,3 +87,16 @@ func TestSupportTemplate(t *testing.T) {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
 }
+
+func TestDryRun(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "-dry-run"}, stdout, stderr)
+
+	got := stdout.String()
+	want := "echo clean\necho build\n"
+	if got != want {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}

@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"text/template"
 
 	"github.com/BurntSushi/toml"
@@ -38,6 +39,7 @@ var (
 	flags       *flag.FlagSet
 	showVersion bool
 	makeFile    string
+	dryRun      bool
 
 	version = "devel"
 )
@@ -46,6 +48,7 @@ func setFlags() {
 	flags = flag.NewFlagSet(cmd, flag.ExitOnError)
 	flags.BoolVar(&showVersion, "v", false, "print version number")
 	flags.StringVar(&makeFile, "f", "bake.toml", "use file as a makefile")
+	flags.BoolVar(&dryRun, "dry-run", false, "print the commands that would be executed")
 	flags.Usage = usage
 }
 
@@ -167,6 +170,11 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 
 func executeCommands(commands []Command, stdout io.Writer) error {
 	for _, command := range commands {
+		if dryRun {
+			fmt.Fprintf(stdout, "%s %s\n", command.name, strings.Join(command.args, " "))
+			continue
+		}
+
 		out, err := exec.Command(command.name, command.args...).CombinedOutput()
 		if err != nil {
 			return err
