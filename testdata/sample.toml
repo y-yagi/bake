@@ -43,3 +43,10 @@ args = ["chrome"]
 command = "echo"
 args = ["google-chrome"]
 {{end}}
+
+[lint]
+command = "golangci-lint"
+args = ["run", "--disable", "errcheck"]
+
+[all]
+dependencies = ["lint", "test", "build"]

@@ -136,11 +136,11 @@ func parse(makeFile string) (map[string]Task, error) {
 func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 	dependencies := task.Dependencies
 	definedTasks := map[string]bool{}
+	visitedTasks := map[string]bool{}
 	commands := []Command{}
 
 	for len(dependencies) > 0 {
 		dependency := dependencies[0]
-		dependencies = dependencies[1:]
 
 		t, found := tasks[dependency]
 		if !found {
@@ -152,13 +152,19 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 			err := fmt.Errorf("circular dependency detected, '%s' already added", dependency)
 			return nil, err
 		}
+
+		if _, found := visitedTasks[dependency]; !found && len(t.Dependencies) > 0 {
+			dependencies = append(t.Dependencies, dependencies...)
+			visitedTasks[dependency] = true
+			continue
+		}
+
+		dependencies = dependencies[1:]
 		definedTasks[dependency] = true
 
 		if len(t.Command) > 0 {
-			commands = append([]Command{Command{name: t.Command, args: t.Args}}, commands...)
+			commands = append(commands, Command{name: t.Command, args: t.Args})
 		}
-
-		dependencies = append(dependencies, t.Dependencies...)
 	}
 
 	if len(task.Command) > 0 {
