@@ -15,6 +15,16 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ .Tag }}-next"
+snapcrafts:
+  -
+    publish: true
+    summary: bake is a simple task runner.
+    description: bake is a simple task runner.
+    license: MIT
+    base: core18
+    apps:
+      drumroll:
+        plugs: ["network"]
 changelog:
   sort: asc
   filters:
