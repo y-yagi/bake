@@ -64,7 +64,7 @@ You can define following values in a makefile.
 
 If you want to switch a command according to OS, you can branch a command inside a makefile.
 
-```toml
+```
 [chrome]
 {{if eq .OS "windows"}}
 command = "start"
