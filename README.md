@@ -54,6 +54,26 @@ OPTIONS:
   -v	print version number
 ```
 
+## Config
+
+You can define following values in a makefile.
+
+* command: A command that execute.
+* args: Arguments for a command.
+* dependencies: Tasks that before running a command.
+
+If you want to switch a command according to OS, you can branch a command inside a makefile.
+
+```toml
+[chrome]
+{{if eq .OS "windows"}}
+command = "start"
+args = ["chrome"]
+{{else}}
+command = "google-chrome"
+{{end}}
+```
+
 ## Installation
 
 Download files from [GitHub release page](https://github.com/y-yagi/bake/releases).
