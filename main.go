@@ -40,7 +40,9 @@ var (
 	showVersion bool
 	makeFile    string
 	dryRun      bool
+	verbose     bool
 
+	logger  *BakeLogger
 	version = "devel"
 )
 
@@ -49,11 +51,13 @@ func setFlags() {
 	flags.BoolVar(&showVersion, "v", false, "print version number")
 	flags.StringVar(&makeFile, "f", "bake.toml", "use file as a makefile")
 	flags.BoolVar(&dryRun, "dry-run", false, "print the commands that would be executed")
+	flags.BoolVar(&verbose, "verbose", false, "use verbose output")
 	flags.Usage = usage
 }
 
 func main() {
 	setFlags()
+	logger = NewLogger(os.Stdout)
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
 
@@ -181,6 +185,9 @@ func executeCommands(commands []Command, stdout io.Writer) error {
 			continue
 		}
 
+		if verbose {
+			logger.Printf("Run", "%s %s\n", command.name, strings.Join(command.args, " "))
+		}
 		out, err := exec.Command(command.name, command.args...).CombinedOutput()
 		if err != nil {
 			return err
