@@ -189,12 +189,11 @@ func executeCommands(commands []Command, stdout io.Writer) error {
 			logger.Printf("Run", "%s %s\n", command.name, strings.Join(command.args, " "))
 		}
 		out, err := exec.Command(command.name, command.args...).CombinedOutput()
-		if err != nil {
-			return err
-		}
-
 		if len(string(out)) > 0 {
 			fmt.Fprintf(stdout, "%s", string(out))
+		}
+		if err != nil {
+			return err
 		}
 	}
 
