@@ -29,8 +29,8 @@ type Command struct {
 	args []string
 }
 
-// MakeFileVariable represents a variables of makefile.
-type MakeFileVariable struct {
+// BakeFileVariable represents a variables of configuration file.
+type BakeFileVariable struct {
 	OS string
 }
 
@@ -38,7 +38,7 @@ var (
 	// Command line flags.
 	flags       *flag.FlagSet
 	showVersion bool
-	makeFile    string
+	configFile  string
 	dryRun      bool
 	verbose     bool
 
@@ -49,7 +49,7 @@ var (
 func setFlags() {
 	flags = flag.NewFlagSet(cmd, flag.ExitOnError)
 	flags.BoolVar(&showVersion, "v", false, "print version number")
-	flags.StringVar(&makeFile, "f", "bake.toml", "use file as a makefile")
+	flags.StringVar(&configFile, "f", "bake.toml", "use file as a configuration file")
 	flags.BoolVar(&dryRun, "dry-run", false, "print the commands that would be executed")
 	flags.BoolVar(&verbose, "verbose", false, "use verbose output")
 	flags.Usage = usage
@@ -83,7 +83,7 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 		return 0
 	}
 
-	tasks, err := parse(makeFile)
+	tasks, err := parse(configFile)
 	if err != nil {
 		return msg(err, stderr)
 	}
@@ -111,20 +111,20 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	return 0
 }
 
-func parse(makeFile string) (map[string]Task, error) {
-	t, err := template.ParseFiles(makeFile)
+func parse(configFile string) (map[string]Task, error) {
+	t, err := template.ParseFiles(configFile)
 	if err != nil {
 		return nil, err
 	}
 
-	parsedMakeFile := new(bytes.Buffer)
-	tv := MakeFileVariable{OS: runtime.GOOS}
-	if err = t.Execute(parsedMakeFile, tv); err != nil {
+	parsedConfigFile := new(bytes.Buffer)
+	tv := BakeFileVariable{OS: runtime.GOOS}
+	if err = t.Execute(parsedConfigFile, tv); err != nil {
 		return nil, err
 	}
 
 	var p toml.Primitive
-	md, err := toml.Decode(parsedMakeFile.String(), &p)
+	md, err := toml.Decode(parsedConfigFile.String(), &p)
 	if err != nil {
 		return nil, err
 	}

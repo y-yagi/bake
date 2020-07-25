@@ -50,13 +50,15 @@ OPTIONS:
   -dry-run
     	print the commands that would be executed
   -f string
-    	use file as a makefile (default "bake.toml")
+    	use file as a configuration file (default "bake.toml")
   -v	print version number
+  -verbose
+    	use verbose output
 ```
 
 ## Config
 
-You can define following values in a makefile.
+You can define following values in a configuration file.
 
 * command: A command that execute.
 * args: Arguments for a command.
