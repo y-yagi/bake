@@ -56,7 +56,7 @@ OPTIONS:
     	use verbose output
 ```
 
-## Config
+## Configuration
 
 You can define following values in a configuration file.
 
@@ -74,6 +74,18 @@ args = ["chrome"]
 {{else}}
 command = "google-chrome"
 {{end}}
+```
+
+### Variable
+
+You can define variables inside a configuration file.
+
+```
+{{$binary:="dummy"}}
+
+[build]
+command = "go"
+args = ["build", "-o", "{{$binary}}"]
 ```
 
 ## Installation
