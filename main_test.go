@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -97,6 +98,19 @@ func TestDryRun(t *testing.T) {
 	got := stdout.String()
 	want := "golangci-lint run --disable errcheck\necho test -v\necho clean\necho build\n"
 	if got != want {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}
+
+func TestEnvironments(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "env"}, stdout, stderr)
+
+	got := stdout.String()
+	want := "FOO=BAR"
+	if !strings.Contains(got, want) {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
 }
