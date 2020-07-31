@@ -21,12 +21,14 @@ type Task struct {
 	Command      string
 	Args         []string
 	Dependencies []string
+	Environments []string
 }
 
 // Command represents a command to run.
 type Command struct {
 	name string
 	args []string
+	envs []string
 }
 
 // BakeFileVariable represents a variables of configuration file.
@@ -167,12 +169,12 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 		definedTasks[dependency] = true
 
 		if len(t.Command) > 0 {
-			commands = append(commands, Command{name: t.Command, args: t.Args})
+			commands = append(commands, Command{name: t.Command, args: t.Args, envs: t.Environments})
 		}
 	}
 
 	if len(task.Command) > 0 {
-		commands = append(commands, Command{name: task.Command, args: task.Args})
+		commands = append(commands, Command{name: task.Command, args: task.Args, envs: task.Environments})
 	}
 
 	return commands, nil
@@ -188,7 +190,11 @@ func executeCommands(commands []Command, stdout io.Writer) error {
 		if verbose {
 			logger.Printf("Run", "%s %s\n", command.name, strings.Join(command.args, " "))
 		}
-		out, err := exec.Command(command.name, command.args...).CombinedOutput()
+		cmd := exec.Command(command.name, command.args...)
+		if len(command.envs) != 0 {
+			cmd.Env = append(os.Environ(), command.envs...)
+		}
+		out, err := cmd.CombinedOutput()
 		if len(string(out)) > 0 {
 			fmt.Fprintf(stdout, "%s", string(out))
 		}

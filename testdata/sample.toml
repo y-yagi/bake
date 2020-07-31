@@ -50,3 +50,7 @@ args = ["run", "--disable", "errcheck"]
 
 [all]
 dependencies = ["lint", "test", "build"]
+
+[env]
+command = "env"
+environments = ["FOO=BAR"]
