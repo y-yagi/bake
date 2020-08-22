@@ -114,3 +114,16 @@ func TestEnvironments(t *testing.T) {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
 }
+
+func TestTasks(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "-T"}, stdout, stderr)
+
+	got := stdout.String()
+	want := "[all] *no command*"
+	if !strings.Contains(got, want) {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}

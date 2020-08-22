@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -38,11 +39,12 @@ type BakeFileVariable struct {
 
 var (
 	// Command line flags.
-	flags       *flag.FlagSet
-	showVersion bool
-	configFile  string
-	dryRun      bool
-	verbose     bool
+	flags        *flag.FlagSet
+	showVersion  bool
+	configFile   string
+	dryRun       bool
+	verbose      bool
+	showTasksFlg bool
 
 	logger  *BakeLogger
 	version = "devel"
@@ -54,6 +56,7 @@ func setFlags() {
 	flags.StringVar(&configFile, "f", "bake.toml", "use file as a configuration file")
 	flags.BoolVar(&dryRun, "dry-run", false, "print the commands that would be executed")
 	flags.BoolVar(&verbose, "verbose", false, "use verbose output")
+	flags.BoolVar(&showTasksFlg, "T", false, "print the tasks")
 	flags.Usage = usage
 }
 
@@ -88,6 +91,11 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	tasks, err := parse(configFile)
 	if err != nil {
 		return msg(err, stderr)
+	}
+
+	if showTasksFlg {
+		showTasks(stdout, tasks)
+		return 0
 	}
 
 	target := "default"
@@ -204,4 +212,20 @@ func executeCommands(commands []Command, stdout io.Writer) error {
 	}
 
 	return nil
+}
+
+func showTasks(stdout io.Writer, tasks map[string]Task) {
+	keys := make([]string, 0, len(tasks))
+	for k := range tasks {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		cmd := tasks[k].Command
+		if len(cmd) == 0 {
+			cmd = "*no command*"
+		}
+		fmt.Fprintf(stdout, "[%s] %s %s\n", k, cmd, strings.Join(tasks[k].Args, " "))
+	}
 }
