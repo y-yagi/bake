@@ -11,7 +11,7 @@ jobs:
     steps:
 
     - name: Set up Go
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go }}
 
@@ -26,7 +26,6 @@ jobs:
 
     - name: Run lint
       run: |
-        export PATH=$PATH:$(go env GOPATH)/bin
         go get -u golang.org/x/lint/golint
         golint -set_exit_status
       env:
@@ -34,7 +33,6 @@ jobs:
 
     - name: Run staticcheck
       run: |
-        export PATH=$PATH:$(go env GOPATH)/bin
         go get -u honnef.co/go/tools/cmd/staticcheck
         staticcheck ./...
       env:
