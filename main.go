@@ -114,7 +114,7 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 		return msg(err, stderr)
 	}
 
-	if err = executeCommands(commands, stdout); err != nil {
+	if err = executeCommands(commands, stdout, stderr); err != nil {
 		return msg(err, stderr)
 	}
 
@@ -188,7 +188,7 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 	return commands, nil
 }
 
-func executeCommands(commands []Command, stdout io.Writer) error {
+func executeCommands(commands []Command, stdout, stderr io.Writer) error {
 	for _, command := range commands {
 		if dryRun {
 			fmt.Fprintf(stdout, "%s %s\n", command.name, strings.Join(command.args, " "))
@@ -199,14 +199,12 @@ func executeCommands(commands []Command, stdout io.Writer) error {
 			logger.Printf("Run", "%s %s\n", command.name, strings.Join(command.args, " "))
 		}
 		cmd := exec.Command(command.name, command.args...)
+		cmd.Stdout = stdout
+		cmd.Stderr = stderr
 		if len(command.envs) != 0 {
 			cmd.Env = append(os.Environ(), command.envs...)
 		}
-		out, err := cmd.CombinedOutput()
-		if len(string(out)) > 0 {
-			fmt.Fprintf(stdout, "%s", string(out))
-		}
-		if err != nil {
+		if err := cmd.Run(); err != nil {
 			return err
 		}
 	}
