@@ -47,6 +47,7 @@ $ bake --help
 Usage: bake [OPTIONS] [TARGET (default "default")]
 
 OPTIONS:
+  -T	print the tasks
   -dry-run
     	print the commands that would be executed
   -f string
