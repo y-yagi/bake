@@ -1,4 +1,4 @@
-package main
+package log
 
 import (
 	"fmt"
@@ -16,8 +16,8 @@ var (
 	green = color.New(color.FgGreen, color.Bold).SprintFunc()
 )
 
-// NewLogger creates a new BakeLogger.
-func NewLogger(w io.Writer) *BakeLogger {
+// NewBakeLogger creates a new BakeLogger.
+func NewBakeLogger(w io.Writer) *BakeLogger {
 	l := &BakeLogger{w: w}
 	return l
 }

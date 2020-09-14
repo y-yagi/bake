@@ -13,6 +13,7 @@ import (
 	"text/template"
 
 	"github.com/BurntSushi/toml"
+	"github.com/y-yagi/bake/internal/log"
 )
 
 const cmd = "bake"
@@ -46,7 +47,7 @@ var (
 	verbose      bool
 	showTasksFlg bool
 
-	logger  *BakeLogger
+	logger  *log.BakeLogger
 	version = "devel"
 )
 
@@ -62,7 +63,7 @@ func setFlags() {
 
 func main() {
 	setFlags()
-	logger = NewLogger(os.Stdout)
+	logger = log.NewBakeLogger(os.Stdout)
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
 
