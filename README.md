@@ -65,6 +65,8 @@ You can define following values in a configuration file.
 * args: Arguments for a command.
 * dependencies: Tasks that before running a command.
 
+### Condition
+
 If you want to switch a command according to OS, you can branch a command inside a makefile.
 
 ```
