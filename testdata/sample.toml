@@ -54,3 +54,9 @@ dependencies = ["lint", "test", "build"]
 [env]
 command = "env"
 environments = ["FOO=BAR"]
+
+[echos]
+commands = [
+  ["echo", "clean"],
+  ["echo", "build"]
+]
