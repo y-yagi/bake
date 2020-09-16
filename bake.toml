@@ -36,3 +36,9 @@ args = ["-u", "golang.org/x/lint/golint", "honnef.co/go/tools/cmd/staticcheck"]
 commad = "go"
 args = ["install"]
 dependencies = ["build"]
+
+[lsdir]
+commands = [
+  ["ls", "-alt"],
+  ["dir"],
+]

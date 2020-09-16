@@ -127,3 +127,16 @@ func TestTasks(t *testing.T) {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
 }
+
+func TestCommands(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "echos"}, stdout, stderr)
+
+	got := stdout.String()
+	want := "clean\nbuild\n"
+	if got != want {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}

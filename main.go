@@ -22,6 +22,7 @@ const cmd = "bake"
 type Task struct {
 	Command      string
 	Args         []string
+	Commands     [][]string
 	Dependencies []string
 	Environments []string
 }
@@ -184,6 +185,12 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 
 	if len(task.Command) > 0 {
 		commands = append(commands, Command{name: task.Command, args: task.Args, envs: task.Environments})
+	}
+
+	if len(task.Commands) > 0 {
+		for _, c := range task.Commands {
+			commands = append(commands, Command{name: c[0], args: c[1:], envs: task.Environments})
+		}
 	}
 
 	return commands, nil
