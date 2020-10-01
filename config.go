@@ -53,7 +53,7 @@ func (c *Config) Parse() error {
 	}
 
 	if err := md.PrimitiveDecode(p, &c.Tasks); err != nil {
-		return err
+		return fmt.Errorf("failed to parse config file: %v", err)
 	}
 
 	return nil
