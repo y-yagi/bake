@@ -10,24 +10,20 @@ The `bake` is a simple task runner. The tasks can be defined in a toml file.
 dependencies = ["build"]
 
 [ls]
-command = "ls"
+command = ["ls"]
 
 [test]
-command = "go"
-args = ["test", "-v"]
+command = ["go", "test", "-v"]
 
 [clean]
-command = "go"
-args = ["clean"]
+command = ["go", "clean"]
 
 [build]
-command = "go"
-args = ["build"]
+command = ["go", "build"]
 dependencies = ["clean"]
 
 [lint]
-command = "golangci-lint"
-args = ["run", "--disable", "errcheck"]
+command = ["golangci-lint", "run", "--disable", "errcheck"]
 
 [all]
 dependencies = ["lint", "test", "build"]
@@ -72,10 +68,9 @@ If you want to switch a command according to OS, you can branch a command inside
 ```
 [chrome]
 {{if eq .OS "windows"}}
-command = "start"
-args = ["chrome"]
+command = ["start", "chrome"]
 {{else}}
-command = "google-chrome"
+command = ["google-chrome"]
 {{end}}
 ```
 
@@ -87,8 +82,7 @@ You can define variables inside a configuration file.
 {{$binary:="dummy"}}
 
 [build]
-command = "go"
-args = ["build", "-o", "{{$binary}}"]
+command = ["go", "build", "-o", "{{$binary}}"]
 ```
 
 ## Installation
