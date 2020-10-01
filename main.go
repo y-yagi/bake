@@ -20,8 +20,7 @@ const cmd = "bake"
 
 // Task represents a whole task.
 type Task struct {
-	Command      string
-	Args         []string
+	Command      []string
 	Commands     [][]string
 	Dependencies []string
 	Environments []string
@@ -179,12 +178,12 @@ func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
 		definedTasks[dependency] = true
 
 		if len(t.Command) > 0 {
-			commands = append(commands, Command{name: t.Command, args: t.Args, envs: t.Environments})
+			commands = append(commands, Command{name: t.Command[0], args: t.Command[1:], envs: t.Environments})
 		}
 	}
 
 	if len(task.Command) > 0 {
-		commands = append(commands, Command{name: task.Command, args: task.Args, envs: task.Environments})
+		commands = append(commands, Command{name: task.Command[0], args: task.Command[1:], envs: task.Environments})
 	}
 
 	if len(task.Commands) > 0 {
@@ -229,9 +228,13 @@ func showTasks(stdout io.Writer, tasks map[string]Task) {
 
 	for _, k := range keys {
 		cmd := tasks[k].Command
+		args := ""
 		if len(cmd) == 0 {
-			cmd = "*no command*"
+			cmd = []string{"*no command*"}
 		}
-		fmt.Fprintf(stdout, "[%s] %s %s\n", k, cmd, strings.Join(tasks[k].Args, " "))
+		if len(cmd[1:]) > 0 {
+			args = strings.Join(tasks[k].Command[1:], " ")
+		}
+		fmt.Fprintf(stdout, "[%s] %s %s\n", k, cmd[0], args)
 	}
 }

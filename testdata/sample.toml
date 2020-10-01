@@ -2,57 +2,48 @@
 dependencies = ["build"]
 
 [ls]
-command = "ls"
+command = ["ls"]
 
 [test]
-command = "echo"
-args = ["test", "-v"]
+command = ["echo", "test", "-v"]
 
 [clean]
-command = "echo"
-args = ["clean"]
+command = ["echo", "clean"]
 
 [build]
-command = "echo"
-args = ["build"]
+command = ["echo", "build"]
 dependencies = ["clean"]
 
 [success]
-command = "echo"
-args = ["success"]
+command = ["echo", "success"]
 dependencies = ["fail"]
 
 [fail]
-command = "zzz"
+command = ["zzz"]
 
 [not_defined]
-command = "echo"
-args = ["not_defined"]
+command = ["echo", "not_defined"]
 dependencies = ["not_defined_dependency"]
 
 [self]
-command = "echo"
-args = ["self"]
+command = ["echo", "self"]
 dependencies = ["self"]
 
 [chrome]
 {{if eq .OS "windows"}}
-command = "echo"
-args = ["chrome"]
+command = ["echo", "chrome"]
 {{else}}
-command = "echo"
-args = ["google-chrome"]
+command = ["echo", "google-chrome"]
 {{end}}
 
 [lint]
-command = "golangci-lint"
-args = ["run", "--disable", "errcheck"]
+command = ["golangci-lint", "run", "--disable", "errcheck"]
 
 [all]
 dependencies = ["lint", "test", "build"]
 
 [env]
-command = "env"
+command = ["env"]
 environments = ["FOO=BAR"]
 
 [echos]
