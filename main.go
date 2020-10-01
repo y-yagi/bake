@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -10,9 +9,7 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-	"text/template"
 
-	"github.com/BurntSushi/toml"
 	"github.com/y-yagi/bake/internal/log"
 )
 
@@ -24,18 +21,6 @@ type Task struct {
 	Commands     [][]string
 	Dependencies []string
 	Environments []string
-}
-
-// Command represents a command to run.
-type Command struct {
-	name string
-	args []string
-	envs []string
-}
-
-// BakeFileVariable represents a variables of configuration file.
-type BakeFileVariable struct {
-	OS string
 }
 
 var (
@@ -89,13 +74,14 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 		return 0
 	}
 
-	tasks, err := parse(configFile)
+	config := NewConfig(configFile)
+	err := config.Parse()
 	if err != nil {
 		return msg(err, stderr)
 	}
 
 	if showTasksFlg {
-		showTasks(stdout, tasks)
+		showTasks(stdout, config.Tasks)
 		return 0
 	}
 
@@ -104,13 +90,7 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 		target = flags.Args()[0]
 	}
 
-	task, found := tasks[target]
-	if !found {
-		err := fmt.Errorf("'%s' is not defined", target)
-		return msg(err, stderr)
-	}
-
-	commands, err := buildCommands(task, tasks)
+	commands, err := config.BuildCommands(target)
 	if err != nil {
 		return msg(err, stderr)
 	}
@@ -120,79 +100,6 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	}
 
 	return 0
-}
-
-func parse(configFile string) (map[string]Task, error) {
-	t, err := template.ParseFiles(configFile)
-	if err != nil {
-		return nil, err
-	}
-
-	parsedConfigFile := new(bytes.Buffer)
-	tv := BakeFileVariable{OS: runtime.GOOS}
-	if err = t.Execute(parsedConfigFile, tv); err != nil {
-		return nil, err
-	}
-
-	var p toml.Primitive
-	md, err := toml.Decode(parsedConfigFile.String(), &p)
-	if err != nil {
-		return nil, err
-	}
-
-	tasks := map[string]Task{}
-	if err := md.PrimitiveDecode(p, &tasks); err != nil {
-		return nil, err
-	}
-
-	return tasks, nil
-}
-
-func buildCommands(task Task, tasks map[string]Task) ([]Command, error) {
-	dependencies := task.Dependencies
-	definedTasks := map[string]bool{}
-	visitedTasks := map[string]bool{}
-	commands := []Command{}
-
-	for len(dependencies) > 0 {
-		dependency := dependencies[0]
-
-		t, found := tasks[dependency]
-		if !found {
-			err := fmt.Errorf("'%s' is not defined", dependency)
-			return nil, err
-		}
-
-		if _, found = definedTasks[dependency]; found {
-			err := fmt.Errorf("circular dependency detected, '%s' already added", dependency)
-			return nil, err
-		}
-
-		if _, found := visitedTasks[dependency]; !found && len(t.Dependencies) > 0 {
-			dependencies = append(t.Dependencies, dependencies...)
-			visitedTasks[dependency] = true
-			continue
-		}
-
-		dependencies = dependencies[1:]
-		definedTasks[dependency] = true
-
-		if len(t.Command) > 0 {
-			commands = append(commands, Command{name: t.Command[0], args: t.Command[1:], envs: t.Environments})
-		}
-	}
-
-	if len(task.Command) > 0 {
-		commands = append(commands, Command{name: task.Command[0], args: task.Command[1:], envs: task.Environments})
-	}
-
-	if len(task.Commands) > 0 {
-		for _, c := range task.Commands {
-			commands = append(commands, Command{name: c[0], args: c[1:], envs: task.Environments})
-		}
-	}
-
-	return commands, nil
 }
 
 func executeCommands(commands []Command, stdout, stderr io.Writer) error {
