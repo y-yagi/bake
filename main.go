@@ -67,7 +67,10 @@ func msg(err error, stderr io.Writer) int {
 }
 
 func run(args []string, stdout, stderr io.Writer) (exitCode int) {
-	flags.Parse(args[1:])
+	err := flags.Parse(args[1:])
+	if err != nil {
+		return msg(err, stderr)
+	}
 
 	if showVersion {
 		fmt.Fprintf(stdout, "%s %s (runtime: %s)\n", cmd, version, runtime.Version())
@@ -75,7 +78,7 @@ func run(args []string, stdout, stderr io.Writer) (exitCode int) {
 	}
 
 	config := NewConfig(configFile)
-	err := config.Parse()
+	err = config.Parse()
 	if err != nil {
 		return msg(err, stderr)
 	}
