@@ -25,6 +25,10 @@ dependencies = ["clean"]
 [lint]
 command = ["golangci-lint", "run", "--disable", "errcheck"]
 
+[windows_build]
+environments = ["GOOS=windows"]
+command = ["go", "build"]
+
 [all]
 dependencies = ["lint", "test", "build"]
 ```
@@ -60,6 +64,7 @@ You can define following values in a configuration file.
 * command: A command that execute.
 * args: Arguments for a command.
 * dependencies: Tasks that before running a command.
+* environments: Environment variables that use when running a command.
 
 ### Condition
 
