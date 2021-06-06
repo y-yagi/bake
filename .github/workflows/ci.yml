@@ -24,19 +24,11 @@ jobs:
       env:
         GO111MODULE: on
 
-    - name: Run lint
-      run: |
-        go get -u golang.org/x/lint/golint
-        golint -set_exit_status
-      env:
-        GO111MODULE: on
-
-    - name: Run staticcheck
-      run: |
-        go get -u honnef.co/go/tools/cmd/staticcheck
-        staticcheck ./...
-      env:
-        GO111MODULE: on
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v2
+      with:
+        version: v1.40
+        args: -D errcheck
 
     - name: Run Test
       run: |
