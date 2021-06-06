@@ -51,3 +51,11 @@ commands = [
   ["echo", "clean"],
   ["echo", "build"]
 ]
+
+[stdout]
+command = ["echo", "clean"]
+stdout = "testdata/stdout.log"
+
+[stderr]
+command = ["ls", "--invalid-option"]
+stderr = "testdata/stderr.log"

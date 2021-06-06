@@ -21,6 +21,8 @@ type Task struct {
 	Commands     [][]string
 	Dependencies []string
 	Environments []string
+	Stdout       string
+	Stderr       string
 }
 
 var (
@@ -116,8 +118,17 @@ func executeCommands(commands []Command, stdout, stderr io.Writer) error {
 			logger.Printf("Run", "%s %s\n", command.name, strings.Join(command.args, " "))
 		}
 		cmd := exec.Command(command.name, command.args...)
-		cmd.Stdout = stdout
-		cmd.Stderr = stderr
+		if command.stdout != io.Discard {
+			cmd.Stdout = command.stdout
+		} else {
+			cmd.Stdout = stdout
+		}
+		if command.stderr != io.Discard {
+			cmd.Stderr = command.stderr
+		} else {
+			cmd.Stderr = stderr
+		}
+
 		if len(command.envs) != 0 {
 			cmd.Env = append(os.Environ(), command.envs...)
 		}

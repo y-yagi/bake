@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
@@ -137,6 +139,42 @@ func TestCommands(t *testing.T) {
 	got := stdout.String()
 	want := "clean\nbuild\n"
 	if got != want {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}
+
+func TestStdout(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "stdout"}, stdout, stderr)
+
+	defer os.Remove("testdata/stdout.log")
+	got, err := ioutil.ReadFile("testdata/stdout.log")
+	if err != nil {
+		t.Fatalf("log reading failed %v\n", err)
+	}
+
+	want := "clean\n"
+	if string(got) != want {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
+}
+
+func TestStderr(t *testing.T) {
+	setFlags()
+	stdout, stderr := new(bytes.Buffer), new(bytes.Buffer)
+
+	run([]string{"bake", "-f", "testdata/sample.toml", "stderr"}, stdout, stderr)
+
+	defer os.Remove("testdata/stderr.log")
+	got, err := ioutil.ReadFile("testdata/stderr.log")
+	if err != nil {
+		t.Fatalf("log reading failed %v\n", err)
+	}
+
+	want := "ls: unrecognized option '--invalid-option'\nTry 'ls --help' for more information.\n"
+	if string(got) != want {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
 }
