@@ -128,6 +128,11 @@ func TestTasks(t *testing.T) {
 	if !strings.Contains(got, want) {
 		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
 	}
+
+	want = "[echos] 'echo clean', 'echo build'"
+	if !strings.Contains(got, want) {
+		t.Fatalf("expected \n%s\n\nbut got \n\n%s\n", want, got)
+	}
 }
 
 func TestCommands(t *testing.T) {

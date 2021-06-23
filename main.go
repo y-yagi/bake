@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/y-yagi/bake/internal/log"
+	"github.com/y-yagi/goext/arr"
 )
 
 const cmd = "bake"
@@ -148,14 +149,22 @@ func showTasks(stdout io.Writer, tasks map[string]Task) {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		cmd := tasks[k].Command
-		args := ""
-		if len(cmd) == 0 {
-			cmd = []string{"*no command*"}
+		if len(tasks[k].Commands) > 0 {
+			summary := ""
+			for _, cmd := range tasks[k].Commands {
+				summary += fmt.Sprintf("'%s', ", arr.Join(cmd, " "))
+			}
+			fmt.Fprintf(stdout, "[%s] %s\n", k, strings.TrimRight(summary, ", "))
+		} else {
+			cmd := tasks[k].Command
+			args := ""
+			if len(cmd) == 0 {
+				cmd = []string{"*no command*"}
+			}
+			if len(cmd[1:]) > 0 {
+				args = strings.Join(tasks[k].Command[1:], " ")
+			}
+			fmt.Fprintf(stdout, "[%s] %s %s\n", k, cmd[0], args)
 		}
-		if len(cmd[1:]) > 0 {
-			args = strings.Join(tasks[k].Command[1:], " ")
-		}
-		fmt.Fprintf(stdout, "[%s] %s %s\n", k, cmd[0], args)
 	}
 }
